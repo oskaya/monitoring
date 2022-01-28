@@ -1,0 +1,38 @@
+version: "3.9"
+services:
+  prometheus:
+    container_name: prometheus
+    image: bitnami/prometheus:latest
+    ports:
+      - "5000:9090"
+    volumes:
+      - ./prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml
+    networks:
+      - prometheus-network
+  
+  nodeexporter:
+    container_name: node-exporter
+    image: jessestuart/node_exporter
+    networks:
+      - prometheus-network
+    
+  python:
+    container_name: python
+    build: .
+    ports:
+      - 5001:5001
+    networks: 
+      - prometheus-network
+    volumes:
+      - ./application.py:/apt/application.py
+  
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    networks:
+      - prometheus-network
+networks:
+  prometheus-network:
+    driver: bridge
